@@ -65,13 +65,14 @@ Here is an example of a multi-value classification. The model determines a senti
 
 ```sql
 -- TODO (fix the code)
-CREATE PREDICTOR huggingface.sentiment_classifier
-PREDICT sentiment
+CREATE MODEL mindsdb.sentiment_classifier
+PREDICT PREDM
 USING
-   task='text-classification',
-   model_name= 'cardiffnlp/twitter-roberta-base-sentiment',
-   input_column = 'text_short',
-   labels=['neg','neu','pos'];
+    engine='huggingface',
+    task='text-classification',
+    model_name= "cardiffnlp/twitter-roberta-base-sentiment",
+    input_column = 'text_short',
+    labels=['neg','neu','pos'];
 ```
 
 On execution, we get:
@@ -84,7 +85,7 @@ Before querying for predictions, we should verify the status of the `sentiment_c
 
 ```sql
 -- TODO (fix the code)
-select * from huggingface.predictors;
+SELECT * FROM mindsdb.models WHERE name='sentiment_classifier';
 ```
 
 On execution, we get:
@@ -97,10 +98,9 @@ Once the status is `complete`, we can query for predictions.
 
 ```sql
 -- TODO (fix the code)
-SELECT  h.*,
-       t.text_short as input_text
-FROM files.df_test as t
-JOIN huggingface.sentiment_classifier as h;
+SELECT h.PREDM
+FROM huggingface.sentiment_classifier as h
+WHERE text_short='It is the best time to launch the Robot to get more money. https:\\/\\/Gof.bode-roesch.de\\/Gof';
 ```
 
 On execution, we get:
