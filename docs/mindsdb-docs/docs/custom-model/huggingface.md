@@ -14,49 +14,58 @@ Here is an example of a binary classification. The model determines whether a te
 
 
 ```sql
--- TODO (fix the code)
-CREATE PREDICTOR huggingface.spam_classifier
+CREATE MODEL mindsdb.spam_classifier
 PREDICT PRED
 USING
-   task='text-classification',
-   model_name= 'mrm8488/bert-tiny-finetuned-sms-spam-detection',
-   input_column = 'text_spammy',
-   labels=['ham','spam'];
+  engine = 'huggingface',
+  task = 'text-classification',
+  model_name = 'mrm8488/bert-tiny-finetuned-sms-spam-detection',
+  input_column = 'text_spammy',
+  labels = ['ham','spam'];
 ```
 
 On execution, we get:
 
 ```sql
-TODO
+Query OK, 0 rows affected (x.xxx sec)
 ```
 
 Before querying for predictions, we should verify the status of the `spam_classifier` model.
 
 ```sql
--- TODO (fix the code)
-select * from huggingface.predictors;
+SELECT *
+FROM mindsdb.models
+WHERE name = 'spam_classifier';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++---------------+-------+--------+--------+-------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|NAME           |PROJECT|STATUS  |ACCURACY|PREDICT|UPDATE_STATUS|MINDSDB_VERSION|ERROR |SELECT_DATA_QUERY|TRAINING_OPTIONS                                                                                                                                                                                               |
++---------------+-------+--------+--------+-------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|spam_classifier|mindsdb|complete|[NULL]  |PRED   |up_to_date   |22.10.2.1      |[NULL]|[NULL]           |{'target': 'PRED', 'using': {'engine': 'huggingface', 'task': 'text-classification', 'model_name': 'mrm8488/bert-tiny-finetuned-sms-spam-detection', 'input_column': 'text_spammy', 'labels': ['ham', 'spam']}}|
++---------------+-------+--------+--------+-------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 Once the status is `complete`, we can query for predictions.
 
 ```sql
--- TODO (fix the code)
-SELECT  h.*,
-       t.text_spammy as input_text
-FROM files.df_test as t
-JOIN huggingface.spam_classifier as h;
+SELECT h.*, t.text_spammy AS input_text
+FROM files.df_test AS t
+JOIN mindsdb.spam_classifier AS h;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++----+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|PRED|PRED_explain                                           |input_text                                                                                                                                                                                                                                           |
++----+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|spam|{'spam': 0.7700932025909424, 'ham': 0.2299068421125412}|Browse over 500 000 of the best porn galleries, daily updated collections\r\nhttp:\/\/porn.aspen.rae.instasexyblog.com\/?sylvia \r\n\r\n adult porn xxx movies apk my first porn shot dads and young teen porn porn talent search free ffm video porn|
+|ham |{'ham': 0.6144421100616455, 'spam': 0.3855578601360321}|It is the best time to launch the Robot to get more money. https:\/\/Gof.bode-roesch.de\/Gof                                                                                                                                                         |
+|ham |{'ham': 0.6945965886116028, 'spam': 0.3054034113883972}|Start making thousands of dollars every week just using this robot. https:\/\/Gof.coronect.de\/Gof                                                                                                                                                   |
++----+-------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 ### Model 2: Sentiment Classifier
@@ -64,49 +73,58 @@ TODO
 Here is an example of a multi-value classification. The model determines a sentiment of a text string, where possible values are negative (`neg`), neutral (`neu`), and positive (`pos`).
 
 ```sql
--- TODO (fix the code)
 CREATE MODEL mindsdb.sentiment_classifier
-PREDICT PREDM
+PREDICT sentiment
 USING
-    engine='huggingface',
-    task='text-classification',
-    model_name= "cardiffnlp/twitter-roberta-base-sentiment",
-    input_column = 'text_short',
-    labels=['neg','neu','pos'];
+  engine = 'huggingface',
+  task = 'text-classification',
+  model_name = 'cardiffnlp/twitter-roberta-base-sentiment',
+  input_column = 'text_short',
+  labels = ['neg','neu','pos'];
 ```
 
 On execution, we get:
 
 ```sql
-TODO
+Query OK, 0 rows affected (x.xxx sec)
 ```
 
 Before querying for predictions, we should verify the status of the `sentiment_classifier` model.
 
 ```sql
--- TODO (fix the code)
-SELECT * FROM mindsdb.models WHERE name='sentiment_classifier';
+SELECT *
+FROM mindsdb.models
+WHERE name = 'sentiment_classifier';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++--------------------+-------+--------+--------+---------+-------------+---------------+------+-----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|NAME                |PROJECT|STATUS  |ACCURACY|PREDICT  |UPDATE_STATUS|MINDSDB_VERSION|ERROR |SELECT_DATA_QUERY|TRAINING_OPTIONS                                                                                                                                                                                                    |
++--------------------+-------+--------+--------+---------+-------------+---------------+------+-----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|sentiment_classifier|mindsdb|complete|[NULL]  |sentiment|up_to_date   |22.10.2.1      |[NULL]|[NULL]           |{'target': 'sentiment', 'using': {'engine': 'huggingface', 'task': 'text-classification', 'model_name': 'cardiffnlp/twitter-roberta-base-sentiment', 'input_column': 'text_short', 'labels': ['neg', 'neu', 'pos']}}|
++--------------------+-------+--------+--------+---------+-------------+---------------+------+-----------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 Once the status is `complete`, we can query for predictions.
 
 ```sql
--- TODO (fix the code)
-SELECT h.PREDM
-FROM huggingface.sentiment_classifier as h
-WHERE text_short='It is the best time to launch the Robot to get more money. https:\\/\\/Gof.bode-roesch.de\\/Gof';
+SELECT h.*, t.text_short AS input_text
+FROM files.df_test AS t
+JOIN mindsdb.sentiment_classifier AS h;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++---------+--------------------------------------------------------------------------------------+-------------------+
+|sentiment|sentiment_explain                                                                     |input_text         |
++---------+--------------------------------------------------------------------------------------+-------------------+
+|neg      |{'neg': 0.9732725620269775, 'neu': 0.022419845685362816, 'pos': 0.004307641182094812} |I hate Australia   |
+|pos      |{'pos': 0.7607280015945435, 'neu': 0.2332666665315628, 'neg': 0.006005281116813421}   |I want to dance    |
+|pos      |{'pos': 0.9835041761398315, 'neu': 0.014900505542755127, 'neg': 0.0015953202964738011}|Baking is the best |
++---------+--------------------------------------------------------------------------------------+-------------------+
 ```
 
 ### Model 3: Zero-Shot Classifier
@@ -114,49 +132,58 @@ TODO
 Here is an example of a zero-shot classification. The model determines to which of the defined categories a text string belongs.
 
 ```sql
--- TODO (fix the code)
-CREATE PREDICTOR huggingface.zero_shot_tcd
+CREATE MODEL mindsdb.zero_shot_tcd
 PREDICT topic
 USING
-   task='zero-shot-classification',
-   model_name= 'facebook/bart-large-mnli',
-   input_column = 'text_short',
-   candidate_labels=['travel', 'cooking', 'dancing'];
+  engine = 'huggingface',
+  task = 'zero-shot-classification',
+  model_name = 'facebook/bart-large-mnli',
+  input_column = 'text_short',
+  candidate_labels = ['travel', 'cooking', 'dancing'];
 ```
 
 On execution, we get:
 
 ```sql
-TODO
+Query OK, 0 rows affected (x.xxx sec)
 ```
 
 Before querying for predictions, we should verify the status of the `zero_shot_tcd` model.
 
 ```sql
--- TODO (fix the code)
-select * from huggingface.predictors;
+SELECT *
+FROM mindsdb.models
+WHERE name = 'zero_shot_tcd';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++-------------+-------+--------+--------+--------+-------------+---------------+------+-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|NAME         |PROJECT|STATUS  |ACCURACY|PREDICT |UPDATE_STATUS|MINDSDB_VERSION|ERROR |SELECT_DATA_QUERY|TRAINING_OPTIONS                                                                                                                                                                                                         |
++-------------+-------+--------+--------+--------+-------------+---------------+------+-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|zero_shot_tcd|mindsdb|complete|[NULL]  |topic   |up_to_date   |22.10.2.1      |[NULL]|[NULL]           |{'target': 'topic', 'using': {'engine': 'huggingface', 'task': 'zero-shot-classification', 'model_name': 'facebook/bart-large-mnli', 'input_column': 'text_short', 'candidate_labels': ['travel', 'cooking', 'dancing']}}|
++-------------+-------+--------+--------+--------+-------------+---------------+------+-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 Once the status is `complete`, we can query for predictions.
 
 ```sql
--- TODO (fix the code)
-SELECT  h.*,
-       t.text_short as input_text
-FROM files.df_test as t
-JOIN huggingface.zero_shot_tcd as h;
+SELECT h.*, t.text_short AS input_text
+FROM files.df_test AS t
+JOIN mindsdb.zero_shot_tcd AS h;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++-------+--------------------------------------------------------------------------------------------------+-------------------+
+|topic  |topic_explain                                                                                     |input_text         |
++-------+--------------------------------------------------------------------------------------------------+-------------------+
+|travel |{'travel': 0.8343215584754944, 'dancing': 0.08680055290460587, 'cooking': 0.07887797057628632}    |I hate Australia   |
+|dancing|{'dancing': 0.9746809601783752, 'travel': 0.015539299696683884, 'cooking': 0.009779711253941059}  |I want to dance    |
+|cooking|{'cooking': 0.9936348795890808, 'travel': 0.0034196735359728336, 'dancing': 0.0029454431496560574}|Baking is the best |
++-------+--------------------------------------------------------------------------------------------------+-------------------+
 ```
 
 ### Model 4: Translation
@@ -164,50 +191,59 @@ TODO
 Here is an example of a translation. The model gets an input string in English and translates it into French.
 
 ```sql
--- TODO (fix the code)
-CREATE PREDICTOR huggingface.translator_en_fr
+CREATE MODEL mindsdb.translator_en_fr
 PREDICT translated
 USING
-   task = 'translation',
-   model_name = 't5-base',
-   input_column = 'text_short',
-   lang_input = 'en',
-   lang_output = 'fr';
+  engine = 'huggingface',
+  task = 'translation',
+  model_name = 't5-base',
+  input_column = 'text_short',
+  lang_input = 'en',
+  lang_output = 'fr';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
+Query OK, 0 rows affected (x.xxx sec)
 ```
 
 Before querying for predictions, we should verify the status of the `translator_en_fr` model.
 
 ```sql
--- TODO (fix the code)
-select * from huggingface.predictors;
+SELECT *
+FROM mindsdb.models
+WHERE name = 'translator_en_fr';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++----------------+-------+--------+--------+----------+-------------+---------------+------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|NAME            |PROJECT|STATUS  |ACCURACY|PREDICT   |UPDATE_STATUS|MINDSDB_VERSION|ERROR |SELECT_DATA_QUERY|TRAINING_OPTIONS                                                                                                                                                                   |
++----------------+-------+--------+--------+----------+-------------+---------------+------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|translator_en_fr|mindsdb|complete|[NULL]  |translated|up_to_date   |22.10.2.1      |[NULL]|[NULL]           |{'target': 'translated', 'using': {'engine': 'huggingface', 'task': 'translation', 'model_name': 't5-base', 'input_column': 'text_short', 'lang_input': 'en', 'lang_output': 'fr'}}|
++----------------+-------+--------+--------+----------+-------------+---------------+------+-----------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 Once the status is `complete`, we can query for predictions.
 
 ```sql
--- TODO (fix the code)
-SELECT  h.*,
-       t.text_short as input_text
-FROM files.df_test as t
-JOIN huggingface.translator_en_fr as h;
+SELECT h.*, t.text_short AS input_text
+FROM files.df_test AS t
+JOIN mindsdb.translator_en_fr AS h;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++-------------------------------+-------------------+
+|translated                     |input_text         |
++-------------------------------+-------------------+
+|Je déteste l'Australie         |I hate Australia   |
+|Je veux danser                 |I want to dance    |
+|La boulangerie est la meilleure|Baking is the best |
++-------------------------------+-------------------+
 ```
 
 ### Model 5: Summarisation
@@ -215,48 +251,57 @@ TODO
 Here is an example of a summarisation.
 
 ```sql
--- TODO (fix the code)
-CREATE PREDICTOR huggingface.summarizer_10_20
+CREATE PREDICTOR mindsdb.summarizer_10_20
 PREDICT text_summary
 USING
-   task='summarization',
-   model_name='sshleifer/distilbart-cnn-12-6',
-   input_column = 'text_long',
-   min_output_length=10,
-   max_output_length=20;
+  engine = 'huggingface',
+  task = 'summarization',
+  model_name = 'sshleifer/distilbart-cnn-12-6',
+  input_column = 'text_long',
+  min_output_length = 10,
+  max_output_length = 20;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
+Query OK, 0 rows affected (x.xxx sec)
 ```
 
 Before querying for predictions, we should verify the status of the `summarizer_10_20` model.
 
 ```sql
--- TODO (fix the code)
-select * from huggingface.predictors;
+SELECT *
+FROM mindsdb.models
+WHERE name = 'summarizer_10_20';
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++----------------+-------+--------+--------+------------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|NAME            |PROJECT|STATUS  |ACCURACY|PREDICT     |UPDATE_STATUS|MINDSDB_VERSION|ERROR |SELECT_DATA_QUERY|TRAINING_OPTIONS                                                                                                                                                                                                     |
++----------------+-------+--------+--------+------------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|summarizer_10_20|mindsdb|complete|[NULL]  |text_summary|up_to_date   |22.10.2.1      |[NULL]|[NULL]           |{'target': 'text_summary', 'using': {'engine': 'huggingface', 'task': 'summarization', 'model_name': 'sshleifer/distilbart-cnn-12-6', 'input_column': 'text_long', 'min_output_length': 10, 'max_output_length': 20}}|
++----------------+-------+--------+--------+------------+-------------+---------------+------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
 
 Once the status is `complete`, we can query for predictions.
 
 ```sql
--- TODO (fix the code)
-SELECT  h.*,
-       t.text_long as input_text
-FROM files.df_test as t
-JOIN huggingface.summarizer_10_20 as h;
+SELECT h.*, t.text_long AS input_text
+FROM files.df_test AS t
+JOIN mindsdb.summarizer_10_20 AS h;
 ```
 
 On execution, we get:
 
 ```sql
-TODO
++--------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|text_summary                                                                                                  |input_text                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
++--------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|Australia is a sovereign country comprising the mainland of the Australian continent, the island of Tasmania  |Australia, officially the Commonwealth of Australia, is a sovereign country comprising the mainland of the Australian continent, the island of Tasmania, and numerous smaller islands.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|Dance is a performing art form consisting of sequences of movement, either improvised or purposefully selected|Dance is a performing art form consisting of sequences of movement, either improvised or purposefully selected. This movement has aesthetic and often symbolic value.[nb 1] Dance can be categorized and described by its choreography, by its repertoire of movements, or by its historical period or place of origin.                                                                                                                                                                                                                                                                                                                                                                                     |
+|Baking is a method of preparing food that uses dry heat, typically in an oven                                 |Baking is a method of preparing food that uses dry heat, typically in an oven, but can also be done in hot ashes, or on hot stones. The most common baked item is bread but many other types of foods can be baked. Heat is gradually transferred from the surface of cakes, cookies, and pieces of bread to their center. As heat travels through, it transforms batters and doughs into baked goods and more with a firm dry crust and a softer center. Baking can be combined with grilling to produce a hybrid barbecue variant by using both methods simultaneously, or one after the other. Baking is related to barbecuing because the concept of the masonry oven is similar to that of a smoke pit.|
++--------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ```
